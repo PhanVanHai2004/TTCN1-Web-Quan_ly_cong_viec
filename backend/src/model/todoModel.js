@@ -1,8 +1,8 @@
 export const addTodo = async (fastify,todo) => {
-    const data = await fastify.pg.query(`INSERT INTO todos (owner_id,assignee_id,reviewer_id,name,description
-        ,status,progress,deadline,done_day,group_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
-        [todo.owner_id,todo.assignee_id,todo.reviewer_id,todo.name,todo.description
-        ,todo.status,todo.progress,todo.deadline,todo.done_day,todo.group_id])
+    const data = await fastify.pg.query(`INSERT INTO todos (owner_id,assignee_id,reviewer_id,name,description,
+        deadline,group_id) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+        [todo.owner_id,todo.assignee_id,todo.reviewer_id,todo.name,todo.description,
+        todo.deadline,todo.group_id])
     const todo_id = data.rows[0].id
     const {file_name,file_path} = todo.file
     await fastify.pg.query(`INSERT INTO todo_files (todo_id,file_name,file_path)
@@ -18,7 +18,8 @@ export const getAllToDo = async (fastify) => {
     )
     return data.rows
 }
-export const updateTodo = async (fastify,id,todo) => {
+
+/* export const updateTodo = async (fastify,id,todo) => {
     const data = await getAllToDo(fastify)
     const owner_id = todo.owner_id ?? data.owner_id
     const assignee_id = todo.assignee_id ?? data.assignee_id
@@ -34,6 +35,17 @@ export const updateTodo = async (fastify,id,todo) => {
         deadline=$8,done_day=$9,group_id=$10 WHERE id=$11`,
         [owner_id,assignee_id,reviewer_id,name,description,status,progress,deadline,done_day,group_id,id])
     return {mes:'cap nhat thanh cong'}
+} */
+export const updateTodo = async (fastify,id,todo) => {
+    const keys = Object.keys(todo)
+    if(keys.length === 0){
+        return{mes:'không có giá trị để cập nhật'}
+    }
+    const setClause = keys.map((key,index)=>`${key}=$${index+1}`).join(',');
+    const values = Object.values(todo)
+    values.push(id)
+    const query = `UPDATE todos SET ${setClause} WHERE id = $${values.length}`
+    await fastify.pg.query(query,values)
 }
 export const deleteTodo = async (fastify,id) => {
     await fastify.pg.query(`DELETE FROM todos WHERE id =$1`,[id])

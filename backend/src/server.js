@@ -1,4 +1,5 @@
 import Fastify from 'fastify'
+import ajvErrors from "ajv-errors"
 import fastifyPostgres from '@fastify/postgres'
 import { DBconfig } from './config/configDB.js'
 import controllerUser from './controller/controllerUser.js'
@@ -8,7 +9,13 @@ import controllerWork from './controller/controllerWork.js'
 
 
 const fastify = Fastify({
-    logger:true
+    logger:true,
+    ajv: {
+    customOptions: {
+      allErrors: true,  // cho phép báo nhiều lỗi 1 lúc
+    },
+    plugins: [ajvErrors],
+  },
 })
 fastify.register(fastifyPostgres,DBconfig)
 

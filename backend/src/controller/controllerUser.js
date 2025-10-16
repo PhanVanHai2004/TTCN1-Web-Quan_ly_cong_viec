@@ -1,7 +1,8 @@
 import { addUser, getUser,updateUser, deleteUser,getByidUser,getByUsername} from "../model/userModel.js"
+import { schemaDeleteUser, schemaUpdateUser, schemaUser } from "../schema/schemaUser.js";
 
 const controllerUser = async (fastify,options) => {
-    fastify.post('/addUser',async (req,reply) => {
+    fastify.post('/addUser',{schema:schemaUser},async (req,reply) => {
         const user = req.body
         console.log('user',user);
         
@@ -12,13 +13,13 @@ const controllerUser = async (fastify,options) => {
         const row = await getUser(fastify)
         return row
     })
-    fastify.patch('/updateUser/:id',async (req,reply) => {
+    fastify.patch('/updateUser/:id',{schema:schemaUpdateUser},async (req,reply) => {
         const id = req.params.id
         const user = req.body   
         await updateUser(fastify,id,user)
         return {mes:'update thanh cong'}
     })
-    fastify.delete('/deleteUser/:id',async (req,reply) => {
+    fastify.delete('/deleteUser/:id',{schema:schemaDeleteUser},async (req,reply) => {
         const id = req.params.id
         await deleteUser(fastify,id)
         return {mes:'xoa thanh cong'}   

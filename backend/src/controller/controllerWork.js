@@ -1,4 +1,4 @@
-import {  detailTodosByType, getTodosByType, updateProgress, updateStatus } from "../model/work_management.js"
+import {  comment, detailTodosByType, getComment, getTodosByType, updateProgress, updateStatus } from "../model/work_management.js"
 
 const controllerWork = async (fastify,options) => {
     fastify.patch('/updateStatus/:id',async (req,reply) => {
@@ -25,6 +25,17 @@ const controllerWork = async (fastify,options) => {
         const data = await getTodosByType(fastify,id,type)
         return data
         
+    })
+    fastify.post('/comments/:userId/:todoId',async (req,reply) => {
+        const { userId,todoId}= req.params
+        const content = req.body
+        await comment(fastify,userId,todoId,content)
+        return content
+    })
+    fastify.get('/getComment/:todoId',async (req,reply) => {
+        const todoId = req.params.todoId
+        const data = getComment(fastify,todoId)
+        return data
     })
 }
 export default controllerWork
