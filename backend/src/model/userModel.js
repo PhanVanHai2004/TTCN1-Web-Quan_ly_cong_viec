@@ -13,10 +13,16 @@ export const getUser = async (fastify) => {
     const data = await fastify.pg.query('SELECT * FROM users')
     return data.rows
 }
-export const updateUser = async (fastify,id) => {
-    await fastify.pg.query(`UPDATE users SET name = $1,phone = $2,address = $3,email = $4,birth_day = $5,password = $6 WHERE id = $7`,
-        [user.name,user.phone,user.address,user.email,user.birth_day,user.password,id]
-    )
+export const updateUser = async (fastify,id,user) => {
+    const keys = Object.keys(user)
+    if(keys.length===0){
+        return{mes:'không có giá trị để cập nhật'}
+    }
+    const setClause = keys.map((key,index)=>`${key}=$${index+1}`).join(',')
+    const value = Object.values(user)
+    value.push(id)
+    const query = `UPDATE users SET ${setClause} WHERE id = $${value.length}`
+    await fastify.pg.query(query,value)
 }
 export const deleteUser = async (fastify,id) => {
     await fastify.pg.query(`DELETE FROM users WHERE id = $1`,[id])

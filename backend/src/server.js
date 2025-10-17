@@ -9,12 +9,14 @@ import controllerWork from './controller/controllerWork.js'
 
 
 const fastify = Fastify({
-    logger:true,
-    ajv: {
+  logger: true,
+  ajv: {
     customOptions: {
-      allErrors: true,  // cho phép báo nhiều lỗi 1 lúc
+      allErrors: true,        // Báo nhiều lỗi cùng lúc
+      strict: false,          // Một số bản Ajv mới cần bật để bỏ strict mode
+      removeAdditional: false // Giữ lại field để hiển thị lỗi
     },
-    plugins: [ajvErrors],
+    plugins: [ajvErrors.default || ajvErrors], 
   },
 })
 fastify.register(fastifyPostgres,DBconfig)

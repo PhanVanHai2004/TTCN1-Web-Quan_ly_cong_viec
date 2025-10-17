@@ -49,13 +49,22 @@ export const getByIdGroup = async (fastify,id) => {
     return data.rows
 }
 export const updateGroup = async (fastify,id,group) => {
-    const dataold= await getByIdGroup(fastify,id)
+    const keys = Object.keys(group)
+    if(keys.length===0){
+        return{mes:'không có giá trị để cập nhật'}
+    }
+    const setClause = keys.map((key,index)=>`${key}=$${index+1}`).join(',')
+    const value = Object.values(group)
+    value.push(id)
+    const query = `UPDATE work_groups SET ${setClause} WHERE id = $${value.length}`
+    await fastify.pg.query(query,value)
+    /* const dataold= await getByIdGroup(fastify,id)
     const name = group.name ?? dataold.name
     const description  = group.description ?? dataold.description
     const owner_id = group.owner_id ?? dataold.owner_id
     await fastify.pg.query(`UPDATE work_groups SET name = $1,description = $2,owner_id= $3 WHERE id = $4`,
         [name,description,owner_id,id]
-    )
+    ) */
 }
 export const deleteGroup = async (fastify,id) => {
     await fastify.pg.query('DELETE FROM work_groups WHERE id = $1`',[id])

@@ -1,7 +1,9 @@
 import { addGroup, addMembers, deleteGroup, deleteMembers, getAllGroup, updateGroup } from "../model/work_group.js"
+import { schemaAddGroup, schemaAddMembers } from "../schema/schemaGroup.js"
+
 
 const controllerGroup = async (fastify,options) => {
-    fastify.post('/addGroup',async (req,reply) => {
+    fastify.post('/addGroup',{schema:schemaAddGroup},async (req,reply) => {
         const group = req.body
         await addGroup(fastify,group)
         return {mes:'tao group thanh cong'}
@@ -21,7 +23,7 @@ const controllerGroup = async (fastify,options) => {
         await deleteGroup(fastify,id)
         return {mes:'xoa group thanh cong'}
     })
-    fastify.post('/addMembers/:id',async (req,reply) => {
+    fastify.post('/addMembers/:id',{schema:schemaAddMembers},async (req,reply) => {
         const id = req.params.id
         const members = req.body
         await addMembers(fastify,id,members)
@@ -33,5 +35,6 @@ const controllerGroup = async (fastify,options) => {
         await deleteMembers(fastify,userId,groupId)
         return {mes:'xoa thanh cong'}
     })
+    
 }
 export default controllerGroup

@@ -1,13 +1,14 @@
-import {  comment, detailTodosByType, getComment, getTodosByType, updateProgress, updateStatus } from "../model/work_management.js"
+import {  comment, detailtodos, getComment, getTodosByType, updateProgress, updateStatus } from "../model/work_management.js"
+import { schemaGetTodosByType, schemaProgress, schemaWork } from "../schema/schemaWork.js"
 
 const controllerWork = async (fastify,options) => {
-    fastify.patch('/updateStatus/:id',async (req,reply) => {
+    fastify.patch('/updateStatus/:id',{schema:schemaWork},async (req,reply) => {
         const id = req.params.id
-        const status = req.body
+        const status= req.body
         await updateStatus(fastify,status,id)
         return {mes:'cap nhat thanh cong'}
     })
-    fastify.patch('/updateProgress/:id',async (req,reply) => {
+    fastify.patch('/updateProgress/:id',{schema:schemaProgress},async (req,reply) => {
         const id = req.params.id
         const Progress = req.body
         await updateProgress(fastify,Progress,id)
@@ -15,11 +16,11 @@ const controllerWork = async (fastify,options) => {
     })
     fastify.get('/detailtodos/:id',async (req,rep) => {
         const id = req.params.id
-        const data = await detailTodosByType(fastify,id)
+        const data = await detailtodos(fastify,id)
         return data
         
     })
-    fastify.get('/todos/:type/:id',async (req,rep) => {
+    fastify.get('/todos/:type/:id',{schema:schemaGetTodosByType},async (req,rep) => {
         const {type,id}= req.params
         console.log(type,id);
         const data = await getTodosByType(fastify,id,type)

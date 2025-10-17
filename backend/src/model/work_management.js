@@ -1,40 +1,10 @@
-/* export const getByOwner_id = async (fastify,id) => {
-    const data = await fastify.pg.query(`SELECT t.*,
-        f.file_name as file
-        FROM todos t
-        LEFT JOIN todo_files f ON t.id = f.todo_id
-        WHERE owner_id =$1`,
-        [id]
-    )
-    return data.rows
-}
-export const getAssignee_id = async (fastify,id) => {
-    const data = await fastify.pg.query(`SELECT t.*,
-        f.file_name as file
-        FROM todos t
-        LEFT JOIN todo_files f ON t.id = f.todo_id
-        WHERE assignee_id =$1`,
-        [id]
-    )
-    return data.rows
-}
-export const getReviewer_id = async (fastify,id) => {
-    const data = await fastify.pg.query(`SELECT t.*,
-        f.file_name as file
-        FROM todos t
-        LEFT JOIN todo_files f ON t.id = f.todo_id
-        WHERE reviewer_id =$1`,
-        [id]
-    )
-    return data.rows
-} */
 export const updateStatus = async (fastify,status,id) => {
     const client =await fastify.pg.connect()
     await client.query(
         `UPDATE todos SET status =$1 WHERE id =$2`,
-        [status,id]
+        [status.status,id]
     )
-    if(status==='done'){
+    if(status.status==='done'){
         await client.query(
             `UPDATE todos SET done_day = NOW() WHERE id =$1`,
         [id]
@@ -44,10 +14,10 @@ export const updateStatus = async (fastify,status,id) => {
 export const updateProgress = async (fastify,Progress,id) => {
     await fastify.pg.query(
         `UPDATE todos SET progress =$1 WHERE id =$2`,
-        [Progress,id]
+        [Progress.progress,id]
     )
 }
-export const detailTodosByType = async (fastify,id) => {
+export const detailtodos = async (fastify,id) => {
     const data = await fastify.pg.query(`
         SELECT t.*, 
                u1.username AS owner_name, 
@@ -67,9 +37,15 @@ export const detailTodosByType = async (fastify,id) => {
     return data.rows
 }
 export const getTodosByType = async (fastify,userId,type) => {
+    const columnMap = {
+    owner: 'owner_id',
+    assignee: 'assignee_id',
+    reviewer: 'reviewer_id',
+    }
+    const column = columnMap[type]
     const data = await fastify.pg.query(`
         SELECT id ,name, status, deadline FROM todos
-        WHERE ${type} = $1
+        WHERE ${column} = $1
         ORDER BY deadline ASC
     `, [userId])
     return data.rows
@@ -78,7 +54,7 @@ export const comment = async (fastify,user_id,todo_id,comment) => {
     await fastify.pg.query(
         `INSERT INTO todo_comments (user_id,todo_id,content) 
         VALUES ($1,$2,$3)`,
-        [user_id,todo_id,comment]
+        [user_id,todo_id,comment.comment]
     )
 }
 export const getComment = async (fastify,todo_id) => {
