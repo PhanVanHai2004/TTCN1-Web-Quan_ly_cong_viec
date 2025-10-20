@@ -1,4 +1,17 @@
 export const schemaWork = {
+    tags: ['Todos'],
+    description: 'Cập nhật trạng thái công việc',
+    ssummary: 'updateStatus',
+    security: [{ apiKey: [] }],
+    params: {
+        type: 'object',
+        properties: {
+            id: {
+                type: 'number',
+                description: 'todo_id'
+            }
+        }
+    },
     body:{
         type:'object',
         required:['status'],
@@ -17,6 +30,19 @@ export const schemaWork = {
     }
 }
 export const schemaProgress = {
+    tags: ['Todos'],
+    description: 'Cập nhật tiến độ công việc',
+    ssummary: 'updateProgress',
+    security: [{ apiKey: [] }],
+    params: {
+        type: 'object',
+        properties: {
+            id: {
+                type: 'number',
+                description: 'todo_id'
+            }
+        }
+    },
     body:{
         type:'object',
         required:['progress'],
@@ -40,6 +66,11 @@ export const schemaProgress = {
     }
 }
 export const schemaGetTodosByType = {
+     tags: ['Todos'],
+    description: 'Cập nhật tiến độ công việc',
+    ssummary: 'updateProgress',
+    security: [{ apiKey: [] }],
+    
   params: {
     type: 'object',
     required: ['type', 'id'],
@@ -55,6 +86,7 @@ export const schemaGetTodosByType = {
       id: {
         type: 'integer',
         minimum: 1,
+        description: 'user_id',
         errorMessage: {
           type: 'userId phải là số nguyên',
           minimum: 'userId phải >= 1'
@@ -65,6 +97,10 @@ export const schemaGetTodosByType = {
   }
 }
 export const addComment = {
+    tags: ['Todos'],
+    description: 'Thêm comments công việc',
+    ssummary: 'addComment',
+    security: [{ apiKey: [] }],
     body:{
         type:'object',
         required:['comment'],

@@ -1,23 +1,23 @@
-export const updateStatus = async (fastify,status,id) => {
-    const client =await fastify.pg.connect()
+export const updateStatus = async (fastify, status, id) => {
+    const client = await fastify.pg.connect()
     await client.query(
         `UPDATE todos SET status =$1 WHERE id =$2`,
-        [status.status,id]
+        [status.status, id]
     )
-    if(status.status==='done'){
+    if (status.status === 'done') {
         await client.query(
             `UPDATE todos SET done_day = NOW() WHERE id =$1`,
-        [id]
+            [id]
         )
     }
 }
-export const updateProgress = async (fastify,Progress,id) => {
+export const updateProgress = async (fastify, Progress, id) => {
     await fastify.pg.query(
         `UPDATE todos SET progress =$1 WHERE id =$2`,
-        [Progress.progress,id]
+        [Progress.progress, id]
     )
 }
-export const detailtodos = async (fastify,id) => {
+export const detailtodos = async (fastify, id) => {
     const data = await fastify.pg.query(`
         SELECT t.*, 
                u1.username AS owner_name, 
@@ -36,11 +36,11 @@ export const detailtodos = async (fastify,id) => {
     `, [id])
     return data.rows
 }
-export const getTodosByType = async (fastify,userId,type) => {
+export const getTodosByType = async (fastify, userId, type) => {
     const columnMap = {
-    owner: 'owner_id',
-    assignee: 'assignee_id',
-    reviewer: 'reviewer_id',
+        owner: 'owner_id',
+        assignee: 'assignee_id',
+        reviewer: 'reviewer_id',
     }
     const column = columnMap[type]
     const data = await fastify.pg.query(`
@@ -50,14 +50,14 @@ export const getTodosByType = async (fastify,userId,type) => {
     `, [userId])
     return data.rows
 }
-export const comment = async (fastify,user_id,todo_id,comment) => {
+export const comment = async (fastify, user_id, todo_id, comment) => {
     await fastify.pg.query(
         `INSERT INTO todo_comments (user_id,todo_id,content) 
         VALUES ($1,$2,$3)`,
-        [user_id,todo_id,comment.comment]
+        [user_id, todo_id, comment.comment]
     )
 }
-export const getComment = async (fastify,todo_id) => {
+export const getComment = async (fastify, todo_id) => {
     const data = await fastify.pg.query(
         `SELECT 
         u1.name AS name,

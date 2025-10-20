@@ -1,4 +1,4 @@
-export const addGroup = async (fastify,group) => {
+export const addGroup = async (fastify, group) => {
     const client = await fastify.pg.connect()
     try {
         await client.query('BEGIN')//bắt đầu transaction
@@ -10,25 +10,25 @@ export const addGroup = async (fastify,group) => {
         )
         const group_id = group_data.rows[0].id
         if (group.files) {
-            const { name, url } = group.files; 
+            const { name, url } = group.files;
             await client.query(
-            `INSERT INTO group_files (group_id,file_name,file_url)
-            VALUES ($1,$2,$3)`, 
-            [group_id, name, url]
-      );
-    }
+                `INSERT INTO group_files (group_id,file_name,file_url)
+            VALUES ($1,$2,$3)`,
+                [group_id, name, url]
+            );
+        }
         await client.query('COMMIT')
     } catch (err) {
         await client.query('ROLLBACK'); //có lỗi thì rollback
-        console.log(err);  
-        throw err; 
+        console.log(err);
+        throw err;
     }
-    finally{
+    finally {
         client.release()
     }
 }
 export const getAllGroup = async (fastify) => {
-  const data = await fastify.pg.query(`
+    const data = await fastify.pg.query(`
     SELECT 
       g.*,  
       ARRAY_AGG(DISTINCT f.file_url) AS files,          
@@ -41,23 +41,23 @@ export const getAllGroup = async (fastify) => {
     GROUP BY g.id
     ORDER BY g.id;
   `);
-  return data.rows;
+    return data.rows;
 };
 
-export const getByIdGroup = async (fastify,id) => {
-    const data = await fastify.pg.query(`SELECT * FROM work_groups WHERE id =$1`,[id])
+export const getByIdGroup = async (fastify, id) => {
+    const data = await fastify.pg.query(`SELECT * FROM work_groups WHERE id =$1`, [id])
     return data.rows
 }
-export const updateGroup = async (fastify,id,group) => {
+export const updateGroup = async (fastify, id, group) => {
     const keys = Object.keys(group)
-    if(keys.length===0){
-        return{mes:'không có giá trị để cập nhật'}
+    if (keys.length === 0) {
+        return { mes: 'không có giá trị để cập nhật' }
     }
-    const setClause = keys.map((key,index)=>`${key}=$${index+1}`).join(',')
+    const setClause = keys.map((key, index) => `${key}=$${index + 1}`).join(',')
     const value = Object.values(group)
     value.push(id)
     const query = `UPDATE work_groups SET ${setClause} WHERE id = $${value.length}`
-    await fastify.pg.query(query,value)
+    await fastify.pg.query(query, value)
     /* const dataold= await getByIdGroup(fastify,id)
     const name = group.name ?? dataold.name
     const description  = group.description ?? dataold.description
@@ -66,8 +66,8 @@ export const updateGroup = async (fastify,id,group) => {
         [name,description,owner_id,id]
     ) */
 }
-export const deleteGroup = async (fastify,id) => {
-    await fastify.pg.query('DELETE FROM work_groups WHERE id = $1`',[id])
+export const deleteGroup = async (fastify, id) => {
+    await fastify.pg.query('DELETE FROM work_groups WHERE id = $1`', [id])
 }
 export const addMembers = async (fastify, id, members) => {
     // Nếu là chuỗi -> parse thành JSON
@@ -87,10 +87,10 @@ export const addMembers = async (fastify, id, members) => {
 
     client.release();
 };
-export const deleteMembers = async (fastify,userId,groupId) => {
+export const deleteMembers = async (fastify, userId, groupId) => {
     await fastify.pg.query(
         `DELETE FROM group_members 
         WHERE group_id =$1 AND user_id=$2`,
-        [groupId,userId.user_id]   
+        [groupId, userId.user_id]
     )
 }
