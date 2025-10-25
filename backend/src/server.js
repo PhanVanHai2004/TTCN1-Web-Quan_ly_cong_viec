@@ -1,6 +1,7 @@
 import Fastify from 'fastify'
 import ajvErrors from "ajv-errors"
 import fastifyPostgres from '@fastify/postgres'
+import cors from '@fastify/cors'
 import { DBconfig } from './config/configDB.js'
 import controllerUser from './controller/controllerUser.js'
 import controllerTodo from './controller/controllerTodo.js'
@@ -8,6 +9,7 @@ import controllerGroup from './controller/controllerWork_group.js'
 import controllerWork from './controller/controllerWork.js'
 import swagger from '@fastify/swagger'
 import swaggerUI from '@fastify/swagger-ui'
+import { configSW, configSWUI } from './config/configSW.js'
 
 
 
@@ -21,46 +23,14 @@ const fastify = Fastify({
     },
     plugins: [ajvErrors.default || ajvErrors],
   },
+   
+})
+await fastify.register(cors, {
+  origin: '*', // Cho phép mọi domain (hoặc ghi cụ thể http://localhost:3000)
 })
 await fastify.register(fastifyPostgres, DBconfig)
-
-
-await fastify.register(swagger, {
-  openapi: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Danh sách các API',
-      description: 'Danh sách tất cả API của dự án',
-      version: '0.1.0'
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-        description: 'Development server'
-      }
-    ],
-    components: {
-      securitySchemes: {
-        apiKey: {
-          type: 'apiKey',
-          name: 'apiKey',
-          in: 'header'
-        }
-      }
-    },
-    externalDocs: {
-      url: 'https://swagger.io',
-      description: 'Find more info here'
-    }
-  }
-})
-await fastify.register(swaggerUI, {
-  routePrefix: '/docs', // URL truy cập Swagger UI
-  uiConfig: {
-    docExpansion: 'none',
-    deepLinking: false
-  },
-})
+await fastify.register(swagger, configSW)
+await fastify.register(swaggerUI, configSWUI)
 await fastify.register(controllerUser)
 await fastify.register(controllerTodo)
 await fastify.register(controllerGroup)
@@ -68,6 +38,9 @@ await fastify.register(controllerWork)
 fastify.get('/', async (req, reply) => {
   return { mes: 'xin chao' }
 })
+fastify.get('/docs-json', async (req, reply) => {
+  return fastify.swagger();
+});
 try {
   // fastify.listen({port:3000}) 
   await fastify.ready()

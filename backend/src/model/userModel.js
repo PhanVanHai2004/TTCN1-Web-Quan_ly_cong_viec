@@ -25,11 +25,19 @@ export const updateUser = async (fastify, id, user) => {
     await fastify.pg.query(query, value)
 }
 export const deleteUser = async (fastify, id) => {
-    await fastify.pg.query(`DELETE FROM users WHERE id = $1`, [id])
+    const result = await fastify.pg.query(`DELETE FROM users WHERE id = $1`, [id])
+    if (result.rowCount === 0) {
+        throw new Error(`Người dùng với id ${id} không tồn tại`)
+
+    }
 }
 export const getByidUser = async (fastify, id) => {
     const data = await fastify.pg.query(`SElECT * FROM users WHERE id = $1`, [id])
-    return data.rows
+    if (data.rowCount === 0) {
+        throw new Error(`Người dùng với id ${id} không tồn tại`)
+
+    }
+    return data.rows[0]
 }
 export const getByUsername = async (fastify, username) => {
     const data = await fastify.pg.query(`SELECT * FROM users WHERE username LIKE $1

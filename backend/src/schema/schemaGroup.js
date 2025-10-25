@@ -1,7 +1,7 @@
 export const schemaAddGroup = {
     tags: ['Group'],
     description: 'Thêm mới 1 group',
-    ssummary: 'thêm group',
+    summary: 'AddGroup',
     security: [{ apiKey: [] }],
     body: {
         type: 'object',
@@ -50,12 +50,20 @@ export const schemaAddGroup = {
                 },
             },
         },
-    }
+    },
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                mes: { type: 'string' },
+            },
+        },
+    },
 }
 export const schemaAddMembers = {
     tags: ['Group'],
     description: 'Thêm thành viên vào nhóm',
-    ssummary: 'thêm thành viên',
+    summary: 'thêm thành viên',
     security: [{ apiKey: [] }],
     params: {
         type: 'object',
@@ -82,5 +90,154 @@ export const schemaAddMembers = {
                 }
             }
         },
-    }
+    },
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                mes: { type: 'string' },
+            },
+        },
+    },
 }
+export const schemaDeleteGroup = {
+    tags: ['Group'],
+    description: 'Xóa group',
+    summary: 'deleteGroup',
+    security: [{ apiKey: [] }],
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                mes: { type: 'string' },
+            },
+        },
+    },
+}
+export const schemaGetAllGroup = {
+  description: 'Lấy danh sách tất cả nhóm cùng thông tin file và thành viên',
+  tags: ['Group'],
+  summary: 'Lấy tất cả group',
+  response: {
+    200: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          name: { type: 'string', example: 'Nhóm phát triển backend' },
+          description: { type: 'string', example: 'Nhóm chịu trách nhiệm phần backend của dự án' },
+          created_at: { type: 'string', format: 'date-time', example: '2025-10-25T08:00:00Z' },
+          updated_at: { type: 'string', format: 'date-time', nullable: true, example: '2025-10-26T12:30:00Z' },
+
+          // Mảng file URL
+          files: {
+            type: 'array',
+            items: { type: 'string', example: 'https://example.com/uploads/design_doc.pdf' }
+          },
+
+          // Mảng thành viên (object)
+          group_members: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                member_id: { type: 'integer', example: 12 },
+                member_name: { type: 'string', example: 'Nguyễn Văn A' }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+export const updateGroupSchema = {
+  description: 'Cập nhật thông tin nhóm theo ID',
+  tags: ['Group'],
+  summary: 'Cập nhật group',
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'integer', description: 'ID của nhóm cần cập nhật', example: 1 }
+    },
+    required: ['id']
+  },
+  body: {
+    type: 'object',
+    description: 'Các trường cần cập nhật (ít nhất 1 trường)',
+    properties: {
+      name: { type: 'string', example: 'Nhóm lập trình Frontend' },
+      description: { type: 'string', example: 'Nhóm đảm nhận phần giao diện người dùng' },
+      updated_at: { type: 'string', format: 'date-time', example: '2025-10-25T12:00:00Z' }
+    },
+    minProperties: 1,
+    additionalProperties: false
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        mes: { type: 'string', example: 'cap nhat thanh cong' }
+      }
+    }
+  }
+};
+export const deleteGroupSchema = {
+  description: 'Xóa group theo ID',
+  tags: ['Group'],
+  summary: 'Xóa group',
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'integer', description: 'ID của group cần xóa', example: 1 }
+    },
+    required: ['id']
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        mes: { type: 'string', example: 'xoa group thanh cong' }
+      }
+    }
+  }
+};
+export const deleteMemberSchema = {
+  description: 'Xóa một thành viên khỏi group',
+  tags: ['Group'],
+  summary: 'Xóa thành viên khỏi group',
+  params: {
+    type: 'object',
+    properties: {
+      groupId: {
+        type: 'integer',
+        description: 'ID của group',
+        example: 2
+      }
+    },
+    required: ['groupId']
+  },
+  body: {
+    type: 'object',
+    properties: {
+      user_id: {
+        type: 'integer',
+        description: 'ID của người dùng cần xóa khỏi group',
+        example: 5
+      }
+    },
+    required: ['user_id']
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        mes: { type: 'string', example: 'xoa thanh cong' }
+      }
+    }
+  }
+};
+
+
+

@@ -19,20 +19,26 @@ export const updateProgress = async (fastify, Progress, id) => {
 }
 export const detailtodos = async (fastify, id) => {
     const data = await fastify.pg.query(`
-        SELECT t.*, 
-               u1.username AS owner_name, 
-               u2.username AS assignee_name,
-               u3.username AS reviewer_name,
-               f1.file_name AS file_name,
-               f2.file_path AS file_path
-        FROM todos t
-        LEFT JOIN users u1 ON t.owner_id = u1.id
-        LEFT JOIN users u2 ON t.assignee_id = u2.id
-        LEFT JOIN users u3 ON t.reviewer_id = u3.id
-        LEFT JOIN todo_files f1 ON t.id = f1.todo_id
-        LEFT JOIN todo_files f2 ON t.id = f1.todo_id
-        WHERE t.id = $1
-        ORDER BY t.deadline ASC
+    SELECT
+      t.id,
+      t.name,
+      t.description,
+      t.status,
+      t.progress,
+      t.deadline,
+      t.done_day,
+      json_build_object('id', u1.id, 'username', u1.username) AS owner,
+      json_build_object('id', u2.id, 'username', u2.username) AS assignee,
+      json_build_object('id', u3.id, 'username', u3.username) AS reviewer,
+      f.file_name,
+      f.file_path
+    FROM todos t
+    LEFT JOIN users u1 ON t.owner_id = u1.id
+    LEFT JOIN users u2 ON t.assignee_id = u2.id
+    LEFT JOIN users u3 ON t.reviewer_id = u3.id
+    LEFT JOIN todo_files f ON t.id = f.todo_id
+    WHERE t.id = $1
+    ORDER BY t.deadline ASC;
     `, [id])
     return data.rows
 }

@@ -1,35 +1,59 @@
 import { addUser, getUser, updateUser, deleteUser, getByidUser, getByUsername } from "../model/userModel.js"
-import { schemaDeleteUser, schemaUpdateUser, schemaUser } from "../schema/schemaUser.js";
+import { schemaDeleteUser, schemaGetById, schemaGetByUsername, schemaGetUser, schemaUpdateUser, schemaUser } from "../schema/schemaUser.js";
+import { handleDatabaseError } from "../utils/dbErrorHandler.js";
 
 const controllerUser = async (fastify, options) => {
-    fastify.post('/addUser', { schema: schemaUser }, async (req, reply) => {
+    fastify.post('/user/addUser', { schema: schemaUser }, async (req, reply) => {
         const user = req.body
         console.log('user', user);
-
-        await addUser(fastify, user)
-        return { mes: "them user thanh cong" }
+        try {
+            await addUser(fastify, user)
+            return { mes: "them user thanh cong" }
+        } catch (err) {
+            console.log(err);
+            return handleDatabaseError(err, reply)
+        }
     })
-    fastify.get('/getAllUser', async (req, reply) => {
-        const row = await getUser(fastify)
-        return row
+    fastify.get('/user/getAllUser', { schema: schemaGetUser }, async (req, reply) => {
+        try {
+            const row = await getUser(fastify)
+            return row
+        } catch (err) {
+            console.error(err)
+            return reply.code(500).send({ error: 'Lỗi lấy danh sách user' })
+        }
     })
-    fastify.patch('/updateUser/:id', { schema: schemaUpdateUser }, async (req, reply) => {
+    fastify.patch('/user/updateUser/:id', { schema: schemaUpdateUser }, async (req, reply) => {
         const id = req.params.id
         const user = req.body
-        await updateUser(fastify, id, user)
-        return { mes: 'update thanh cong' }
+        try {
+            await updateUser(fastify, id, user)
+            return { mes: 'update thanh cong' }
+        } catch (err) {
+            console.log(err);
+            return handleDatabaseError(err, reply)
+
+        }
     })
-    fastify.delete('/deleteUser/:id', { schema: schemaDeleteUser }, async (req, reply) => {
+    fastify.delete('/user/deleteUser/:id', { schema: schemaDeleteUser }, async (req, reply) => {
         const id = req.params.id
-        await deleteUser(fastify, id)
-        return { mes: 'xoa thanh cong' }
+        try {
+            await deleteUser(fastify, id)
+            return { mes: 'xoa thanh cong' }
+        } catch (err) {
+            return reply.code(404).send({ error: err.message })
+        }
     })
-    fastify.get('/getByidUser/:id', async (req, reply) => {
+    fastify.get('/user/getByidUser/:id', { schema: schemaGetById }, async (req, reply) => {
         const id = req.params.id
-        const row = await getByidUser(fastify, id)
-        return row
+        try {
+            const row = await getByidUser(fastify, id)
+            return row
+        } catch (err) {
+            return reply.code(404).send({ error: err.message })
+        }
     })
-    fastify.get('/getByUsername', async (req, reply) => {
+    fastify.get('/user/getByUsername', { schema: schemaGetByUsername }, async (req, reply) => {
         const { username } = req.query
         if (!username) {
             return reply.code(404).send({

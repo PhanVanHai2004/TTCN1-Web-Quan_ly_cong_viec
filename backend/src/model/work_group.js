@@ -30,16 +30,20 @@ export const addGroup = async (fastify, group) => {
 export const getAllGroup = async (fastify) => {
     const data = await fastify.pg.query(`
     SELECT 
-      g.*,  
-      ARRAY_AGG(DISTINCT f.file_url) AS files,          
-      ARRAY_AGG(DISTINCT n.name) AS member_names,      
-      ARRAY_AGG(DISTINCT m.user_id) AS member_id    
-    FROM work_groups g
-    LEFT JOIN group_files f ON g.id = f.group_id
-    LEFT JOIN group_members m ON g.id = m.group_id
-    LEFT JOIN users n ON m.user_id = n.id
-    GROUP BY g.id
-    ORDER BY g.id;
+    g.*,  
+    ARRAY_AGG(DISTINCT f.file_url) AS files,          
+    JSON_AGG(
+      DISTINCT JSONB_BUILD_OBJECT(
+        'member_id', m.user_id, 
+        'member_name', n.name
+      )
+    ) AS group_members
+  FROM work_groups g
+  LEFT JOIN group_files f ON g.id = f.group_id
+  LEFT JOIN group_members m ON g.id = m.group_id
+  LEFT JOIN users n ON m.user_id = n.id
+  GROUP BY g.id
+  ORDER BY g.id;
   `);
     return data.rows;
 };
