@@ -140,7 +140,7 @@ export const schemaDetailTodo = {
       }
     }
   },
-  response: {
+  response : {
     200: {
       description: 'Thông tin chi tiết của công việc',
       type: 'array',

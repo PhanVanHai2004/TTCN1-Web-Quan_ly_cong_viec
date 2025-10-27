@@ -8,7 +8,7 @@ const controllerUser = async (fastify, options) => {
         console.log('user', user);
         try {
             await addUser(fastify, user)
-            return { mes: "them user thanh cong" }
+            return'abc'
         } catch (err) {
             console.log(err);
             return handleDatabaseError(err, reply)
@@ -19,8 +19,7 @@ const controllerUser = async (fastify, options) => {
             const row = await getUser(fastify)
             return row
         } catch (err) {
-            console.error(err)
-            return reply.code(500).send({ error: 'Lỗi lấy danh sách user' })
+            handleDatabaseError(err,reply)
         }
     })
     fastify.patch('/user/updateUser/:id', { schema: schemaUpdateUser }, async (req, reply) => {
@@ -41,6 +40,8 @@ const controllerUser = async (fastify, options) => {
             await deleteUser(fastify, id)
             return { mes: 'xoa thanh cong' }
         } catch (err) {
+            console.log(err);
+            
             return reply.code(404).send({ error: err.message })
         }
     })

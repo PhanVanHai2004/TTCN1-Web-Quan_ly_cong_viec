@@ -1,6 +1,6 @@
 export const updateStatus = async (fastify, status, id) => {
     const client = await fastify.pg.connect()
-    await client.query(
+    const data =await client.query(
         `UPDATE todos SET status =$1 WHERE id =$2`,
         [status.status, id]
     )
@@ -10,12 +10,15 @@ export const updateStatus = async (fastify, status, id) => {
             [id]
         )
     }
+    client.release()   
+    return data.rowCount 
 }
 export const updateProgress = async (fastify, Progress, id) => {
-    await fastify.pg.query(
+    const data = await fastify.pg.query(
         `UPDATE todos SET progress =$1 WHERE id =$2`,
         [Progress.progress, id]
     )
+    return data.rowCount
 }
 export const detailtodos = async (fastify, id) => {
     const data = await fastify.pg.query(`
@@ -72,6 +75,13 @@ export const getComment = async (fastify, todo_id) => {
         LEFT JOIN users u1 ON c.user_id = u1.id
         WHERE todo_id = $1`,
         [todo_id]
+    )
+    return data.rows
+}
+export const getByStatus = async (fastify,status) => {
+    const data = await fastify.pg.query(
+        `SELECT id ,name, status, deadline FROM todos WHERE status= $1`,
+        [status]
     )
     return data.rows
 }

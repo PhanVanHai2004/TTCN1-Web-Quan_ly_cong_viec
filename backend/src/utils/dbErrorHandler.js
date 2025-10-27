@@ -3,7 +3,6 @@ export function handleDatabaseError(err, reply) {
     '23505': 'Dữ liệu đã tồn tại (trùng khóa duy nhất)',
     '23503': 'Vi phạm khóa ngoại',
     '22003':'Giá trị id quá lớn',
-    '1':'id không tồn tại'
   }
 
   if (dbErrors[err.code]) {

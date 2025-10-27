@@ -169,9 +169,11 @@ export const updateGroupSchema = {
     properties: {
       name: { type: 'string', example: 'Nhóm lập trình Frontend' },
       description: { type: 'string', example: 'Nhóm đảm nhận phần giao diện người dùng' },
-      updated_at: { type: 'string', format: 'date-time', example: '2025-10-25T12:00:00Z' }
     },
     minProperties: 1,
+    errorMessage:{
+      minProperties:'Không có dữ liệu để cập nhật'
+    },
     additionalProperties: false
   },
   response: {

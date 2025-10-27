@@ -1,3 +1,5 @@
+
+
 export const addTodo = async (fastify, todo) => {
     const data = await fastify.pg.query(`INSERT INTO todos (owner_id,assignee_id,reviewer_id,name,description,
         deadline,group_id) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
@@ -15,17 +17,13 @@ export const getAllToDo = async (fastify) => {
     )
     return data.rows
 }
-export const updateTodo = async (fastify, id, todo) => {
-    const keys = Object.keys(todo)
-    if (keys.length === 0) {
-        return { mes: 'không có giá trị để cập nhật' }
-    }
+export const updateTodo = async (fastify, id, keys,values) => {
     const setClause = keys.map((key, index) => `${key}=$${index + 1}`).join(',');
-    const values = Object.values(todo)
     values.push(id)
     const query = `UPDATE todos SET ${setClause} WHERE id = $${values.length}`
     await fastify.pg.query(query, values)
 }
 export const deleteTodo = async (fastify, id) => {
-    await fastify.pg.query(`DELETE FROM todos WHERE id =$1`, [id])
+   const row =  await fastify.pg.query(`DELETE FROM todos WHERE id =$1`, [id])
+   return row.rowCount 
 }

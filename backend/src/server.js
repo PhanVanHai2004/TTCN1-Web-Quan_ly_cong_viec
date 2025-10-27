@@ -42,7 +42,6 @@ fastify.get('/docs-json', async (req, reply) => {
   return fastify.swagger();
 });
 try {
-  // fastify.listen({port:3000}) 
   await fastify.ready()
   fastify.swagger()
   await fastify.listen({port:3000}) 
