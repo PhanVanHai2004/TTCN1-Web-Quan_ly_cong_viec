@@ -1,76 +1,78 @@
 export const schemaWork = {
-    tags: ['Todos'],
-    description: 'Cập nhật trạng thái công việc',
-    ssummary: 'updateStatus',
-    security: [{ apiKey: [] }],
-    params: {
-        type: 'object',
-        properties: {
-            id: {
-                type: 'number',
-                description: 'todo_id'
-            }
-        }
-    },
-    body:{
-        type:'object',
-        required:['status'],
-        properties:{
-            status:{type:'string',enum:['new','working','pending','closed','done'],
-                errorMessage:{
-                    enum:'Trạng thái không hợp lệ(new,working,pending,closed,done)'
-                },
-            },
-        },
-        errorMessage:{
-            required:{
-                status:'trạng thái không được bỏ trống'
-            }
-        },
+  tags: ['Todos'],
+  description: 'Cập nhật trạng thái công việc',
+  ssummary: 'updateStatus',
+  security: [{ apiKey: [] }],
+  params: {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'number',
+        description: 'todo_id'
+      }
     }
+  },
+  body: {
+    type: 'object',
+    required: ['status'],
+    properties: {
+      status: {
+        type: 'string', enum: ['new', 'working', 'pending', 'closed', 'done'],
+        errorMessage: {
+          enum: 'Trạng thái không hợp lệ(new,working,pending,closed,done)'
+        },
+      },
+    },
+    errorMessage: {
+      required: {
+        status: 'trạng thái không được bỏ trống'
+      }
+    },
+  }
 }
 export const schemaProgress = {
-    tags: ['Todos'],
-    description: 'Cập nhật tiến độ công việc',
-    ssummary: 'updateProgress',
-    security: [{ apiKey: [] }],
-    params: {
-        type: 'object',
-        properties: {
-            id: {
-                type: 'number',
-                description: 'todo_id'
-            }
-        }
-    },
-    body:{
-        type:'object',
-        required:['progress'],
-        properties:{
-            progress:{type:'number',minimum:0,maximum:100,
-                errorMessage:{
-                    type:'Giá trị phải là số',
-                    minimum:'giá trị tối thiểu 0%',
-                    maximum:'giá trị tối đa 100%'
-                }
-            },
-
-        },
-        additionalProperties: false, // Chặn field ngoài schema
-        errorMessage:{
-            required:{
-                progress:"progress không được bỏ trống"
-            },
-            additionalProperties: 'Không được gửi thêm trường không hợp lệ!',
-        }
+  tags: ['Todos'],
+  description: 'Cập nhật tiến độ công việc',
+  ssummary: 'updateProgress',
+  security: [{ apiKey: [] }],
+  params: {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'number',
+        description: 'todo_id'
+      }
     }
+  },
+  body: {
+    type: 'object',
+    required: ['progress'],
+    properties: {
+      progress: {
+        type: 'number', minimum: 0, maximum: 100,
+        errorMessage: {
+          type: 'Giá trị phải là số',
+          minimum: 'giá trị tối thiểu 0%',
+          maximum: 'giá trị tối đa 100%'
+        }
+      },
+
+    },
+    additionalProperties: false, // Chặn field ngoài schema
+    errorMessage: {
+      required: {
+        progress: "progress không được bỏ trống"
+      },
+      additionalProperties: 'Không được gửi thêm trường không hợp lệ!',
+    }
+  }
 }
 export const schemaGetTodosByType = {
-     tags: ['Todos'],
-    description: 'Xem công việc theo vai trò',
-    ssummary: 'updateProgress',
-    security: [{ apiKey: [] }],
-    
+  tags: ['Todos'],
+  description: 'Xem công việc theo vai trò',
+  ssummary: 'updateProgress',
+  security: [{ apiKey: [] }],
+
   params: {
     type: 'object',
     required: ['type', 'id'],
@@ -93,33 +95,33 @@ export const schemaGetTodosByType = {
         }
       }
     },
-    
+
   }
 }
 export const addComment = {
-    tags: ['Todos'],
-    description: 'Thêm comments công việc',
-    ssummary: 'addComment',
-    security: [{ apiKey: [] }],
-    body:{
-        type:'object',
-        required:['comment'],
-        properties:{
-            comment:{type:'string'}
-        },
-        additionalProperties: false,
-        errorMessage:{
-            required:{
-                comment:'nội dung không được để trống'
-            },
-        },
-    }
+  tags: ['Todos'],
+  description: 'Thêm comments công việc',
+  ssummary: 'addComment',
+  security: [{ apiKey: [] }],
+  body: {
+    type: 'object',
+    required: ['comment'],
+    properties: {
+      comment: { type: 'string' }
+    },
+    additionalProperties: false,
+    errorMessage: {
+      required: {
+        comment: 'nội dung không được để trống'
+      },
+    },
+  }
 }
 export const schemaDetailTodo = {
   tags: ['Todos'],
   summary: 'Xem chi tiết công việc',
   description: 'Lấy thông tin chi tiết của một công việc (todo) theo ID, bao gồm người tạo, người được giao, người duyệt và file đính kèm.',
-  security: [{ apiKey: [] }], 
+  security: [{ apiKey: [] }],
   params: {
     type: 'object',
     required: ['id'],
@@ -140,7 +142,7 @@ export const schemaDetailTodo = {
       }
     }
   },
-  response : {
+  response: {
     200: {
       description: 'Thông tin chi tiết của công việc',
       type: 'array',
@@ -152,6 +154,7 @@ export const schemaDetailTodo = {
           description: { type: 'string', example: 'Viết báo cáo công việc tuần này' },
           status: { type: 'string', example: 'in_progress' },
           progress: { type: 'integer', example: 60 },
+          created_at: { type: 'string', format: 'date-time', example: '2025-10-30T17:00:00Z' },
           deadline: { type: 'string', format: 'date-time', example: '2025-10-30T17:00:00Z' },
           done_day: { type: 'string', format: 'date-time', nullable: true },
           owner: {
@@ -308,3 +311,58 @@ export const schemaGetCommentTodo = {
 }
 
 
+export const byTime = {
+  tags: ['Todos'],
+  description: 'Lọc công việc cá nhân theo ngày, tuần, tháng',
+  summary: 'Lọc công việc',
+  security: [{ apiKey: [] }],
+  params: {
+      type: 'object',
+      properties: {
+        acction: { 
+          type: 'string', 
+          enum: ['doy', 'week', 'month'], 
+          description: 'Kiểu thời gian lọc: ngày trong năm, tuần trong năm hoặc tháng',
+          errorMessage: {
+          enum:'acction phải là các giá trị  [doy, week, month]'
+        }
+        },
+        id: {
+          type: 'integer',
+          description: 'ID của người được giao công việc'
+        }
+      },
+      required: ['acction', 'id']
+    },
+    querystring: {
+      type: 'object',
+      properties: {
+        date: {
+          type: 'string',
+          format: 'date',
+          description: 'Ngày được truyền vào để lọc (optional)',
+          errorMessage:{
+            format:'thời gian truyền vào không hợp lệ(MMMM-YY-DD)'
+          }
+        }
+      }
+    },
+     response: {
+      200: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            title: { type: 'string' },
+            description: { type: 'string' },
+            deadline: { type: 'string', format: 'date-time' },
+            assignee_id: { type: 'integer' },
+            status: { type: 'string' }
+          }
+        }
+      }
+    }
+  
+  
+}

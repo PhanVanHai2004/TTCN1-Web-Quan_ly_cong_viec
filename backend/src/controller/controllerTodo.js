@@ -5,7 +5,12 @@ import { handleDatabaseError } from "../utils/dbErrorHandler.js"
 const controllerTodo = async (fastify, options) => {
     fastify.post('/todos/addTodo', { schema: schemaTodo }, async (req, reply) => {
         const todo = req.body
+        const deadlineDate = new Date(todo.deadline)
+        const date = new Date()
         try {
+            if(deadlineDate< date){
+                return reply.code(400).send({mes:'deadline phải lớn hơn ngày hiện tại'})
+            }
             await addTodo(fastify, todo)
             return { mes: 'them cong viec thanh cong' }
         } catch (err) {

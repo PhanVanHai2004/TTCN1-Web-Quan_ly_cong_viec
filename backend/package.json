@@ -18,6 +18,7 @@
     "@fastify/swagger-ui": "^5.2.3",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^3.0.1",
+    "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
     "fastify": "^5.6.1",
     "nodemon": "^3.1.10"

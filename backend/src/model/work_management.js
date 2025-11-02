@@ -1,6 +1,6 @@
 export const updateStatus = async (fastify, status, id) => {
     const client = await fastify.pg.connect()
-    const data =await client.query(
+    const data = await client.query(
         `UPDATE todos SET status =$1 WHERE id =$2`,
         [status.status, id]
     )
@@ -10,8 +10,8 @@ export const updateStatus = async (fastify, status, id) => {
             [id]
         )
     }
-    client.release()   
-    return data.rowCount 
+    client.release()
+    return data.rowCount
 }
 export const updateProgress = async (fastify, Progress, id) => {
     const data = await fastify.pg.query(
@@ -22,14 +22,7 @@ export const updateProgress = async (fastify, Progress, id) => {
 }
 export const detailtodos = async (fastify, id) => {
     const data = await fastify.pg.query(`
-    SELECT
-      t.id,
-      t.name,
-      t.description,
-      t.status,
-      t.progress,
-      t.deadline,
-      t.done_day,
+    SELECT t.*,
       json_build_object('id', u1.id, 'username', u1.username) AS owner,
       json_build_object('id', u2.id, 'username', u2.username) AS assignee,
       json_build_object('id', u3.id, 'username', u3.username) AS reviewer,
@@ -78,11 +71,25 @@ export const getComment = async (fastify, todo_id) => {
     )
     return data.rows
 }
-export const getByStatus = async (fastify,status) => {
+export const getByStatus = async (fastify, type) => {
     const data = await fastify.pg.query(
         `SELECT id ,name, status, deadline FROM todos WHERE status= $1`,
-        [status]
+        [type]
     )
     return data.rows
 }
+export const getByTime = async (fastify,acction,id, date) => {
+    const data = await fastify.pg.query(
+        `SELECT *
+        FROM todos	
+        --WHERE EXTRACT(MONTH FROM deadline) = $1--EXTRACT là hàm để trích xuất một phần của ngày giờ.
+        WHERE $1 BETWEEN EXTRACT(${acction} FROM created_at) AND EXTRACT(${acction} FROM deadline)
+        AND EXTRACT(YEAR FROM deadline) = EXTRACT(YEAR FROM CURRENT_DATE)
+        AND assignee_id = $2
+        ORDER BY deadline ASC;`,
+        [date,id]
+    )
+    return data.rows
+}
+
 
