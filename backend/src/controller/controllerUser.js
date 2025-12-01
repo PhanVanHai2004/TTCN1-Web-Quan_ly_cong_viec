@@ -8,7 +8,7 @@ const controllerUser = async (fastify, options) => {
         console.log('user', user);
         try {
             await addUser(fastify, user)
-            return'abc'
+            return{mes:"Thêm người dùng thành công"}
         } catch (err) {
             console.log(err);
             return handleDatabaseError(err, reply)

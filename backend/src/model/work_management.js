@@ -38,7 +38,7 @@ export const detailtodos = async (fastify, id) => {
     `, [id])
     return data.rows
 }
-export const getTodosByType = async (fastify, userId, type) => {
+/* export const getTodosByType = async (fastify, userId, type) => {
     const columnMap = {
         owner: 'owner_id',
         assignee: 'assignee_id',
@@ -51,7 +51,7 @@ export const getTodosByType = async (fastify, userId, type) => {
         ORDER BY deadline ASC
     `, [userId])
     return data.rows
-}
+} */
 export const comment = async (fastify, user_id, todo_id, comment) => {
     await fastify.pg.query(
         `INSERT INTO todo_comments (user_id,todo_id,content) 
@@ -78,7 +78,7 @@ export const getByStatus = async (fastify, type) => {
     )
     return data.rows
 }
-export const getByTime = async (fastify,acction,id, date) => {
+/* export const getByTime = async (fastify, acction, id, date) => {
     const data = await fastify.pg.query(
         `SELECT *
         FROM todos	
@@ -87,9 +87,59 @@ export const getByTime = async (fastify,acction,id, date) => {
         AND EXTRACT(YEAR FROM deadline) = EXTRACT(YEAR FROM CURRENT_DATE)
         AND assignee_id = $2
         ORDER BY deadline ASC;`,
-        [date,id]
+        [date, id]
     )
     return data.rows
+} */
+export const searchTodos = async (fastify, search, value) => {
+    const data = await fastify.pg.query(
+        `SELECT id ,name, status, deadline FROM todos WHERE ${search}=$1`,
+        [value]
+    )
+    return data.rows
+}
+export const getTodos = async (fastify) => {
+    const data = await fastify.pg.query(` SELECT * FROM todos`
+    )
+    return data.rows
+}
+export const getCV = async (fastify, id) => {
+    const data = await fastify.pg.query(
+        `SELECT t.*,
+      json_build_object('id', u1.id, 'username', u1.username) AS owner,
+      json_build_object('id', u2.id, 'username', u2.username) AS assignee,
+      json_build_object('id', u3.id, 'username', u3.username) AS reviewer,
+      f.file_name,
+      f.file_path
+    FROM todos t
+    LEFT JOIN users u1 ON t.owner_id = u1.id
+    LEFT JOIN users u2 ON t.assignee_id = u2.id
+    LEFT JOIN users u3 ON t.reviewer_id = u3.id
+    LEFT JOIN todo_files f ON t.id = f.todo_id
+        WHERE reviewer_id=$1 OR owner_id=$2`,
+        [id, id]
+    )
+    return data.rows
+    
+}
+export const CV = async (fastify, id) => {
+    const data = await fastify.pg.query(
+        `SELECT t.*,
+      json_build_object('id', u1.id, 'username', u1.username) AS owner,
+      json_build_object('id', u2.id, 'username', u2.username) AS assignee,
+      json_build_object('id', u3.id, 'username', u3.username) AS reviewer,
+      f.file_name,
+      f.file_path
+    FROM todos t
+    LEFT JOIN users u1 ON t.owner_id = u1.id
+    LEFT JOIN users u2 ON t.assignee_id = u2.id
+    LEFT JOIN users u3 ON t.reviewer_id = u3.id
+    LEFT JOIN todo_files f ON t.id = f.todo_id
+        WHERE reviewer_id=$1 OR owner_id=$2 OR assignee_id=$3`,
+        [id,id,id]
+    )
+    return data.rows
+    
 }
 
 

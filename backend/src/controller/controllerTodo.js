@@ -18,7 +18,7 @@ const controllerTodo = async (fastify, options) => {
             handleDatabaseError(err, reply)
 
         }
-    })
+    }) 
     fastify.get('/todos/getAllTodo', { schema: schemagetAllTodos }, async (req, reply) => {
         try {
             const data = await getAllToDo(fastify)
@@ -56,5 +56,6 @@ const controllerTodo = async (fastify, options) => {
             handleDatabaseError(err,reply)
         }
     })
+    
 }
 export default controllerTodo

@@ -4,6 +4,7 @@ import { handleDatabaseError } from "../utils/dbErrorHandler.js"
 
 
 const controllerGroup = async (fastify, options) => {
+    //Thêm nhóm
     fastify.post('/group/addGroup', { schema: schemaAddGroup }, async (req, reply) => {
         const group = req.body
         try {
@@ -13,6 +14,7 @@ const controllerGroup = async (fastify, options) => {
             handleDatabaseError(err,reply)
         }
     })
+    
     fastify.get('/group/getAllGroup', { schema: schemaGetAllGroup }, async (req, reply) => {
         try {
             const data = await getAllGroup(fastify)
@@ -21,6 +23,7 @@ const controllerGroup = async (fastify, options) => {
             handleDatabaseError(err,reply)
         }
     })
+    //Cập nhật nhóm
     fastify.patch('/group/updateGroup/:id', { schema: updateGroupSchema }, async (req, reply) => {
         const id = req.params.id
         const group = req.body
@@ -32,6 +35,7 @@ const controllerGroup = async (fastify, options) => {
             
         }
     })
+    //Xóa nhóm
     fastify.delete('/group/deleteGroup/:id', { schema: deleteGroupSchema }, async (req, reply) => {
         const id = req.params.id
         try {
@@ -45,6 +49,7 @@ const controllerGroup = async (fastify, options) => {
             handleDatabaseError(err,reply)
         }
     })
+    //Thêm thành viên
     fastify.post('/group/addMembers/:id', { schema: schemaAddMembers }, async (req, reply) => {
         const id = req.params.id
         const members = req.body
@@ -57,6 +62,7 @@ const controllerGroup = async (fastify, options) => {
 
         }
     })
+    //Xóa thành viên
     fastify.delete('/group/deleteMembers/:groupId', { schema: deleteMemberSchema }, async (req, reply) => {
         const groupId = req.params.groupId
         const userId = req.body

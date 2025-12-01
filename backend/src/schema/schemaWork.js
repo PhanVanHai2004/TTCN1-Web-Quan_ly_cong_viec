@@ -67,7 +67,7 @@ export const schemaProgress = {
     }
   }
 }
-export const schemaGetTodosByType = {
+/* export const schemaGetTodosByType = {
   tags: ['Todos'],
   description: 'Xem công việc theo vai trò',
   ssummary: 'updateProgress',
@@ -97,7 +97,7 @@ export const schemaGetTodosByType = {
     },
 
   }
-}
+} */
 export const addComment = {
   tags: ['Todos'],
   description: 'Thêm comments công việc',
@@ -311,7 +311,7 @@ export const schemaGetCommentTodo = {
 }
 
 
-export const byTime = {
+/* export const byTime = {
   tags: ['Todos'],
   description: 'Lọc công việc cá nhân theo ngày, tuần, tháng',
   summary: 'Lọc công việc',
@@ -366,3 +366,4 @@ export const byTime = {
   
   
 }
+ */

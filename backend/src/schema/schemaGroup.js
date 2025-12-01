@@ -8,11 +8,11 @@ export const schemaAddGroup = {
         required: ['name', 'description', 'owner_id', 'creator_id', 'files'],
         properties: {
             name: {
-                type: 'string', minLength: 5, maxLength: 30,
+                type: 'string', minLength: 5, maxLength: 100,
                 errorMessage: {
                     type: 'Tên phải là chuỗi',
                     minLength: 'Tên phải có ít nhất 5 ký tự ',
-                    maxLength: 'Tên có độ dài tối đa 30 kí tự',
+                    maxLength: 'Tên có độ dài tối đa 100 kí tự',
 
                 },
             },
