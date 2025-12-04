@@ -36,9 +36,6 @@ export default function Home() {
           done: Array.isArray(data.done) ? data.done : [],
           deadline: Array.isArray(data.deadline) ? data.deadline : []
         });
-
-
-        setReviewTasks(Array.isArray(data.review) ? data.review : []);
       })
       .catch(err => console.log(err));
   }, []);
@@ -62,7 +59,7 @@ export default function Home() {
       })
       .catch(err => console.log(err))
   }, [])
-console.log('group',group);
+
 
   return (
     <div className="p-6">

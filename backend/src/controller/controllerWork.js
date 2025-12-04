@@ -207,28 +207,28 @@ const controllerWork = async (fastify, options) => {
         const data = {
             //['new', 'working', 'pending', 'closed', 'done'],
             sum: 0,
-            new: [],
-            working: [],
-            pending: [],
-            closed: [],
-            work_deadline: [],
-            done: [],
-            deadline: []
+            new: 0,
+            working: 0,
+            pending: 0,
+            closed: 0,
+            work_deadline: 0,
+            done: 0,
+            deadline: 0
 
         }
 
         const row = await getCV(fastify, id)
 
         for (let i = 0; i < row.length; i++) {
-            data[row[i].status].push(row[i])
+            data[row[i].status]++
             console.log(row[i].status);
             data.sum++
         }
-        for (const keys in data) {
+        /* for (const keys in data) {
             if (data[keys].length === 0) {
                 data[keys].push({ message: "Không có công việc nào" })
             }
-        }
+        } */
         return data
 
     })
