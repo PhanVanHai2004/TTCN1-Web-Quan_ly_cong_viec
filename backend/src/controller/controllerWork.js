@@ -1,5 +1,5 @@
 import { getAllToDo } from "../model/todoModel.js";
-import { comment, CV, detailtodos, /* getByStatus, getByTime, */ getComment, getCV, getTodos, /* getTodosByType, */ searchTodos, updateProgress, updateStatus } from "../model/work_management.js"
+import { comment, CV, detailtodos, /* getByStatus, getByTime, */ getComment, getCV, getDeadline, getTodos, /* getTodosByType, */ searchTodos, updateProgress, updateStatus } from "../model/work_management.js"
 import { /* byTime, */ schemaCommentTodo, schemaDetailTodo, schemaGetCommentTodo,/*  schemaGetTodosByType, */ schemaProgress, schemaWork } from "../schema/schemaWork.js"
 import { handleDatabaseError } from "../utils/dbErrorHandler.js"
 import dayjs from 'dayjs';
@@ -66,7 +66,7 @@ const controllerWork = async (fastify, options) => {
         }
 
     }) */
-   //Thêm comment
+    //Thêm comment
     fastify.post('/todos/comments/:userId/:todoId', { schema: schemaCommentTodo }, async (req, reply) => {
         const { userId, todoId } = req.params
         const content = req.body
@@ -127,50 +127,50 @@ const controllerWork = async (fastify, options) => {
 
     }) */
 
-    fastify.get('/todos/search',async (req,reply) => {
+    fastify.get('/todos/search', async (req, reply) => {
         const qr = req.query
-        console.log('query',qr);
+        console.log('query', qr);
         const key = Object.keys(qr)[0]
         console.log(key);
         let value = Object.values(qr)[0]
-        if (key === 'deadline'){
+        if (key === 'deadline') {
             value = new Date()
         }
         console.log(value);
         try {
-            const data = await searchTodos(fastify,key,value)
+            const data = await searchTodos(fastify, key, value)
             return data
         } catch (err) {
             console.log(err);
-            
+
         }
-        
-        
+
+
     })
     //Lấy ra các công việc theo các trạng thái new,working,pending,closed,done
-    fastify.get('/kanban',async (req,reply) => {
+    fastify.get('/kanban', async (req, reply) => {
         const data = await getTodos(fastify)
         const row = {
-            new : [],
-            done:[],
-            pending:[],
-            working:[],
-            closed:[]
+            new: [],
+            done: [],
+            pending: [],
+            working: [],
+            closed: []
         }
-        for ( let i = 0;i<data.length;i++){
+        for (let i = 0; i < data.length; i++) {
             row[data[i].status].push(data[i])
             console.log(data[i]);
-            
+
         }
-        for(const keys in row){        
-            if(row[keys].length===0){
-                row[keys].push({message: "Không có công việc nào"})
+        for (const keys in row) {
+            if (row[keys].length === 0) {
+                row[keys].push({ message: "Không có công việc nào" })
             }
         }
         return row
     })
     //Lấy ra danh sách các công việc do mình giám sát, các công việc của mình đã tạo
-    fastify.get('/todos/congviecc/:id',async (req,reply) => {
+    /* fastify.get('/todos/congviecc/:id',async (req,reply) => {
         const id = req.params.id
         console.log('id',id);
         
@@ -201,54 +201,54 @@ const controllerWork = async (fastify, options) => {
         }
         
         return row
-    })
-    fastify.get('/todos/chart/:id',async (req,reply) => {
+    }) */
+    fastify.get('/todos/chart/:id', async (req, reply) => {
         const id = req.params.id
-        const data ={
+        const data = {
             //['new', 'working', 'pending', 'closed', 'done'],
-            sum:0,
-            new:[],
-            working:[],
-            pending:[],
-            closed:[],
-            work_deadline:[],
-            done:[],
-            deadline:[]
+            sum: 0,
+            new: [],
+            working: [],
+            pending: [],
+            closed: [],
+            work_deadline: [],
+            done: [],
+            deadline: []
 
         }
-        
-        const row = await getCV(fastify,id)
-        
-        for(let i = 0;i< row.length;i++){    
+
+        const row = await getCV(fastify, id)
+
+        for (let i = 0; i < row.length; i++) {
             data[row[i].status].push(row[i])
             console.log(row[i].status);
             data.sum++
         }
-        for(const keys in data){        
-            if(data[keys].length===0){
-                data[keys].push({message: "Không có công việc nào"})
+        for (const keys in data) {
+            if (data[keys].length === 0) {
+                data[keys].push({ message: "Không có công việc nào" })
             }
         }
         return data
 
     })
-    fastify.get('/todos/congviec/:id',async (req,reply) => {
+    fastify.get('/todos/congviec/:id', async (req, reply) => {
         const id = req.params.id
-        console.log('id',typeof(id));
-        
+        console.log('id', typeof (id));
+
         const now = new Date()
-           console.log('time',now);
+        console.log('time', now);
         const time_now = new Date(now.toDateString())
-        console.log('time_now',time_now);
-        
-        
+        console.log('time_now', time_now);
+
+
         const cv = {
-            working:[],
-            owner:[],
-            done:[],
-            deadline:[]
+            working: [],
+            owner: [],
+            done: [],
+            deadline: []
         }
-        const data = await CV(fastify,id)
+        const data = await CV(fastify, id)
         /* data.map((d)=>{
             const DeadLine= new Date(d.deadline)
             console.log('deadline',DeadLine);
@@ -266,28 +266,41 @@ const controllerWork = async (fastify, options) => {
             }
            
         }) */
-        data.forEach((d)=>{
-            console.log('owner_id',d.owner_id);
-            const DeadLine= new Date(d.deadline)
-            console.log('deadline',DeadLine);
+        data.forEach((d) => {
+            console.log('owner_id', d.owner_id);
+            const DeadLine = new Date(d.deadline)
+            console.log('deadline', DeadLine);
             const dead = new Date(DeadLine.toDateString())
-            console.log('dead',dead);
-            
-            if(d.status==="new"||d.status==="working"){
+            console.log('dead', dead);
+
+            if (d.status === "new" || d.status === "working") {
                 cv.working.push(d)
             }
-            if(d.status==="done"){
+            if (d.status === "done") {
                 cv.done.push(d)
             }
-            if(dead< time_now&&d.status!="done"){
+            if (dead < time_now && d.status != "done") {
                 cv.deadline.push(d)
             }
-            if(Number(id) === d.owner_id){
-                
+            if (Number(id) === d.owner_id) {
+
                 cv.owner.push(d)
             }
         })
         return cv
+    })
+    fastify.get('/todos/deadline/:id', async (req, reply) => {
+        const id = req.params.id
+        const today = new Date().toISOString().slice(0, 10);  // "2025-12-02"
+        console.log("today =", today);
+        const data = await getDeadline(fastify, today, id)
+        data.map(d => {
+            console.log(d.deadline);
+        }
+        )
+
+        return data
+
     })
 
 }

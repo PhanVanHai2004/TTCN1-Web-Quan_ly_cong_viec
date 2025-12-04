@@ -17,6 +17,11 @@ export const addGroup = async (fastify, group) => {
                 [group_id, name, url]
             );
         }
+        await client.query(
+            `INSERT INTO group_members (group_id,user_id,role)
+            VALUES ($1,$2,$3)`,
+            [group_id, group.creator_id, "owner"]
+        )
         await client.query('COMMIT')
     } catch (err) {
         await client.query('ROLLBACK'); //có lỗi thì rollback
@@ -65,7 +70,7 @@ export const updateGroup = async (fastify, id, group) => {
     }
 }
 export const deleteGroup = async (fastify, id) => {
-    const data=await fastify.pg.query('DELETE FROM work_groups WHERE id = $1', [id])
+    const data = await fastify.pg.query('DELETE FROM work_groups WHERE id = $1', [id])
     return data.rowCount
 }
 export const addMembers = async (fastify, id, members) => {
@@ -94,3 +99,33 @@ export const deleteMembers = async (fastify, userId, groupId) => {
     )
     return data.rowCount
 }
+
+export const getGroupById = async (fastify, id) => {
+    const data = await fastify.pg.query(
+        `
+        SELECT 
+            wg.id AS group_id,
+            wg.name AS group_name,
+            gm.role AS user_role,
+
+            -- Lấy danh sách tất cả thành viên của group trả về dạng JSON
+            (
+                SELECT json_agg(json_build_object(
+                    'user_id', gm2.user_id,
+                    'role', gm2.role
+                ))
+                FROM group_members gm2
+                WHERE gm2.group_id = wg.id
+            ) AS members
+
+        FROM group_members gm
+        JOIN work_groups wg 
+            ON gm.group_id = wg.id
+        WHERE gm.user_id = $1
+        `, 
+        [id]
+    );
+
+    return data.rows;
+};
+

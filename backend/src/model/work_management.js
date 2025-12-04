@@ -141,5 +141,23 @@ export const CV = async (fastify, id) => {
     return data.rows
     
 }
+export const getDeadline = async (fastify,deadline,id) => {
+    const data = await fastify.pg.query(
+        `SELECT t.*,
+      json_build_object('id', u1.id, 'username', u1.username) AS owner,
+      json_build_object('id', u2.id, 'username', u2.username) AS assignee,
+      json_build_object('id', u3.id, 'username', u3.username) AS reviewer,
+      f.file_name,
+      f.file_path
+    FROM todos t
+    LEFT JOIN users u1 ON t.owner_id = u1.id
+    LEFT JOIN users u2 ON t.assignee_id = u2.id
+    LEFT JOIN users u3 ON t.reviewer_id = u3.id
+    LEFT JOIN todo_files f ON t.id = f.todo_id
+        WHERE deadline =$1 AND (reviewer_id=$2 OR owner_id=$3 OR assignee_id=$4)`,
+        [deadline,id,id,id]
+    )
+    return data.rows
+}
 
 

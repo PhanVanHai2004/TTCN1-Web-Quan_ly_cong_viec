@@ -1,111 +1,146 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { data, Link } from "react-router-dom";
+import Taskcolumn from "../components/Taskcolumn";
+import ColumnGroup from "../components/ColumnGroup";
+import TaskDetailModal from "../components/TaskDetailModal";
+
 
 export default function Home() {
-  const [deadline, setTodayTasks] = useState([]);
-  const [createdTasks, setCreatedTasks] = useState([]);
-  const [ReviewTasks, setWatchingTasks] = useState([]);
-  const [selectedTask, setSelectedTask] = useState(null); // Task đang được click
-
+  const [actGroup, setActGroup] = useState("members")
+  const [action, setAction] = useState("working"); // filter hiện tại
+  const [group, setGroup] = useState({
+    owner:[],
+    members:[]
+  })
+  const [tasksByAction, setTasksByAction] = useState({
+    working: [],
+    owner: [],
+    done: [],
+    deadline: []
+  });
+  const [deadline, setDeadline] = useState([]);
+  const [selectedTask, setSelectedTask] = useState(null); // task đang click
+  const [selectedGroup, setSelectedGroup] = useState(null);
 
   const API_BASE = "http://localhost:3000";
-  const fakeCurrentUser = { id: 7, name: "Hai Phan" }; // user giả
+  const fakeCurrentUser = { id: 5, name: "Hai Phan" };
 
+  // Lấy dữ liệu từ API
   useEffect(() => {
-    fetch(`${API_BASE}/todos/search?deadline`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("API data:", data);
-        setTodayTasks(Array.isArray(data) ? data : []);
-      })
-      .catch(err => console.log(err));
-
     fetch(`${API_BASE}/todos/congviec/${fakeCurrentUser.id}`)
       .then(res => res.json())
       .then(data => {
-        console.log("API data:", data);
+        setTasksByAction({
+          working: Array.isArray(data.working) ? data.working : [],
+          owner: Array.isArray(data.owner) ? data.owner : [],
+          done: Array.isArray(data.done) ? data.done : [],
+          deadline: Array.isArray(data.deadline) ? data.deadline : []
+        });
 
-        setCreatedTasks(Array.isArray(data.owner) ? data.owner : []);
-        console.log('owner', data.owner);
 
-        setWatchingTasks(Array.isArray(data.review) ? data.review : []);
-        console.log('assignee', data.review);
+        setReviewTasks(Array.isArray(data.review) ? data.review : []);
       })
-
       .catch(err => console.log(err));
-
-    /* fetch(`${API_BASE}/todos/search?reviewer_id=${fakeCurrentUser.id}`)
-      .then(res => res.json())
-      .then(data => setWatchingTasks(data))
-      .catch(err => console.log(err)); */
   }, []);
-  const Column = ({ title, tasks }) => {
-    const safeTasks = Array.isArray(tasks) ? tasks : [];
-    return (
-      <div className="bg-gray-100 rounded p-4 flex-1 min-w-[250px]">
-        <h2 className="font-bold text-lg mb-4">{title}</h2>
-        {safeTasks.length === 0 ? (
-          <p className="text-gray-500">Không có công việc nào</p>
-        ) : (
-          safeTasks.map(task => (
-            <div key={task.id} className="bg-white rounded shadow p-3 mb-3 hover:bg-gray-100 "
-              onClick={() => setSelectedTask(task)} /* mở popup */>
-              <p className="font-medium">{task.name}</p>
-              <p className="text-sm text-gray-500">Deadline: {task.deadline?.slice(0, 10)}</p>
-              <p className="text-sm text-gray-400">Status: {task.status}</p>
-            </div>
-          ))
-        )}
-      </div>
-    );
-  };
+  useEffect(() => {
+    fetch(`${API_BASE}/todos/deadline/${fakeCurrentUser.id}`)
+      .then(res => res.json())
+      .then(data => {
+        setDeadline(Array.isArray(data) ? data : []);
+      })
+      .catch(err => console.log(err))
+  }, [])
 
-
+  useEffect(() => {
+    fetch(`${API_BASE}/group/getGroup/${fakeCurrentUser.id}`)
+      .then(res => res.json())
+      .then(data => {
+        setGroup({
+          owner: Array.isArray(data.owner) ? data.owner :[],
+          members: Array.isArray(data.members) ? data.members :[]
+        })
+      })
+      .catch(err => console.log(err))
+  }, [])
+console.log('group',group);
 
   return (
     <div className="p-6">
       {/* Navbar */}
       <nav className="mb-6 flex gap-4">
-
         <Link to="/about" className="text-blue-500 hover:underline">Timeline</Link>
         <Link to="/contact" className="text-blue-500 hover:underline">Kanban</Link>
       </nav>
 
       <h1 className="text-2xl font-bold mb-6">Dashboard Công việc</h1>
+
       <div className="flex gap-4 flex-wrap">
-        <Column title="Deadline hôm nay" tasks={deadline} />
-        <Column title="Đã tạo" tasks={createdTasks} /> 
-        <Column title="Giám sát" tasks={ReviewTasks} />
-      </div>
-      {selectedTask && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-xl w-[400px] max-w-[90%] relative">
-            <h2 className="text-2xl font-bold mb-4">{selectedTask.name}</h2>
-            <p><strong>ID:</strong> {selectedTask.id}</p>
-            <p><strong>Name:</strong> {selectedTask.name}</p>
-            <p><strong>Tiến độ:</strong> {selectedTask.progress}</p>
-            <p><strong>Ngày tạo:</strong> {selectedTask.created_at}</p>
-            <p><strong>Deadline:</strong> {selectedTask.deadline?.slice(0, 10)}</p>
-            <p><strong>Ngày hoàn thành:</strong> {selectedTask.done_day}</p>
-            <p><strong>Status:</strong> {selectedTask.status}</p>
-            <p><strong>Mô tả:</strong> {selectedTask.description || "Chưa có mô tả"}</p>
-            <p><strong>Người tạo:</strong> {selectedTask.owner.username || "Chưa có"}</p>
-            <p><strong>Người được giao:</strong> {selectedTask.assignee.username || "Chưa có"}</p>
-            <p><strong>Người giám sát:</strong> {selectedTask.reviewer.username|| "Chưa có"}</p>
-            <p><strong>file :</strong> {selectedTask.file_name || "Chưa có"}</p>
 
-            <button
-              className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              onClick={() => setSelectedTask(null)} // đóng popup
-            >
-              Đóng
-            </button>
+        {/* Deadline */}
+        <Taskcolumn
+          title="Deadline hôm nay"
+          tasks={deadline}
+          onSelect={setSelectedTask}
+        />
+
+        {/* Công việc của tôi + filter */}
+        <div className="flex-1 min-w-[250px] bg-gray-50 rounded p-4">
+          <div className="mb-3 font-bold">Công việc của tôi</div>
+
+          <div className="flex gap-2 mb-4">
+            {["working", "owner", "done", "deadline"].map(key => (
+              <button
+                key={key}
+                onClick={() => setAction(key)}
+                className={`px-3 py-1 rounded capitalize text-sm ${action === key ?
+                  "bg-blue-500 text-white" :
+                  "bg-gray-200"
+                  }`}
+              >
+                {key}
+              </button>
+            ))}
           </div>
+
+          <Taskcolumn
+            title={action.charAt(0).toUpperCase() + action.slice(1)}
+            tasks={tasksByAction[action]}
+            onSelect={setSelectedTask}
+          />
         </div>
-      )}
+        {/* Nhóm của tôi */}
+        <div className="flex-1 min-w-[250px] bg-gray-50 rounded p-4">
+          <div className="mb-3 font-bold">Nhóm của tôi</div>
 
+          <div className="flex gap-2 mb-4">
+            {["members", "owner"].map(key => (
+              <button
+                key={key}
+                onClick={() => setActGroup(key)}
+                className={`px-3 py-1 rounded capitalize text-sm ${actGroup === key ?
+                  "bg-blue-500 text-white" :
+                  "bg-gray-200"
+                  }`}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
+          {/* Nhóm của tôi */}
+          <ColumnGroup
+            title={actGroup.charAt(0).toUpperCase() + actGroup.slice(1)}
+            groups={group[actGroup]}
+            onSelect={setSelectedGroup}
+          />
+        </div>
+      </div>
 
+      {/* Popup chi tiết */}
+      <TaskDetailModal
+        task={selectedTask}
+        onClose={() => setSelectedTask(null)}
+      />
     </div>
-
   );
+
 }

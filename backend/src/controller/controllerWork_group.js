@@ -1,4 +1,4 @@
-import { addGroup, addMembers, deleteGroup, deleteMembers, getAllGroup, updateGroup } from "../model/work_group.js"
+import { addGroup, addMembers, deleteGroup, deleteMembers, getAllGroup, getGroupById,  updateGroup } from "../model/work_group.js"
 import { deleteGroupSchema, deleteMemberSchema, schemaAddGroup, schemaAddMembers, schemaGetAllGroup, updateGroupSchema } from "../schema/schemaGroup.js"
 import { handleDatabaseError } from "../utils/dbErrorHandler.js"
 
@@ -76,6 +76,22 @@ const controllerGroup = async (fastify, options) => {
             handleDatabaseError(err,reply)
         }
     })
+    fastify.get('/group/getGroup/:id',async (req,reply) => {
+        const id = req.params.id
+        const row = await getGroupById(fastify,id)
+        const data = {
+            creator:[],
+            members:[]
+        }
+        row.map(r=>{
+            if(row.user_role==="owner"){
+                data[creator].push(r)
+            }
+            data.members.push(r)
+        })
+        return data
+    })
+    
 
 }
 export default controllerGroup
